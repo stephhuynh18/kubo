@@ -76,6 +76,18 @@ func (n *Node) WriteBytes(filename string, b []byte) {
 	}
 }
 
+func (n *Node) ReadFile(filename string) string {
+	b, err := os.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+	return string(b)
+}
+
+func (n *Node) ConfigFile() string {
+	return filepath.Join(n.Dir, "config")
+}
+
 func (n *Node) ReadConfig() *config.Config {
 	cfg, err := serial.Load(filepath.Join(n.Dir, "config"))
 	if err != nil {

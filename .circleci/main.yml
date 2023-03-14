@@ -165,28 +165,11 @@ jobs:
     - run: sudo apt install socat net-tools fish libxml2-utils
     - checkout
 
-    - run:
-        mkdir rb-pinning-service-api &&
-        cd rb-pinning-service-api &&
-        git init &&
-        git remote add origin  https://github.com/ipfs-shipyard/rb-pinning-service-api.git &&
-        git fetch --depth 1 origin 773c3adbb421c551d2d89288abac3e01e1f7c3a8 &&
-        git checkout FETCH_HEAD
-    - run:
-        cd rb-pinning-service-api &&
-        (for i in {1..3}; do docker-compose pull && break || sleep 5; done) &&
-        docker-compose up -d
-
     - *make_out_dirs
     - *restore_gomod
 
     - run:
-        name: Setup Environment Variables
-        # we need the docker host IP; all ports exported by child containers can be accessed there.
-        command: echo "export TEST_DOCKER_HOST=$(ip -4 addr show docker0 | grep -Po 'inet \K[\d.]+')" >> $BASH_ENV
-    - run:
-        echo TEST_DOCKER_HOST=$TEST_DOCKER_HOST &&
-        make -O -j << pipeline.parameters.make_jobs >> test_sharness coverage/sharness_tests.coverprofile test/sharness/test-results/sharness.xml CONTINUE_ON_S_FAILURE=1 TEST_DOCKER_HOST=$TEST_DOCKER_HOST
+        make -O -j << pipeline.parameters.make_jobs >> test_sharness coverage/sharness_tests.coverprofile test/sharness/test-results/sharness.xml CONTINUE_ON_S_FAILURE=1
     - run:
         when: always
         command: bash <(curl -s https://codecov.io/bash) -cF sharness -X search -f coverage/sharness_tests.coverprofile
