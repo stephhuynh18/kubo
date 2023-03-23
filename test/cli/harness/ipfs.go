@@ -78,3 +78,20 @@ func (n *Node) IPFSAdd(content io.Reader, args ...string) string {
 	log.Debugf("add result: %q", out)
 	return out
 }
+
+func (n *Node) IPFSDagImport(content io.Reader, args ...string) string {
+	log.Debugf("node %d dag import with args: %v", n.ID, args)
+	fullArgs := []string{"dag", "import"}
+	fullArgs = append(fullArgs, args...)
+	res := n.Runner.MustRun(RunRequest{
+		Path:    n.IPFSBin,
+		Args:    fullArgs,
+		CmdOpts: []CmdOpt{RunWithStdin(content)},
+	})
+	out := strings.TrimSpace(res.Stdout.String())
+	out = strings.TrimPrefix(out, "Pinned root")
+	out = strings.TrimSuffix(out, "success")
+	out = strings.TrimSpace(out)
+	log.Debugf("add result: %q", out)
+	return out
+}
