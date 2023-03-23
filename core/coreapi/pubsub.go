@@ -125,6 +125,14 @@ func (sub *pubSubSubscription) Next(ctx context.Context) (coreiface.PubSubMessag
 	return &pubSubMessage{msg}, nil
 }
 
+func (msg *pubSubMessage) ID() string {
+	return msg.msg.ID
+}
+
+func (msg *pubSubMessage) ReceivedFrom() peer.ID {
+	return peer.ID(msg.msg.ReceivedFrom)
+}
+
 func (msg *pubSubMessage) From() peer.ID {
 	return peer.ID(msg.msg.From)
 }
@@ -143,4 +151,8 @@ func (msg *pubSubMessage) Topics() []string {
 		return nil
 	}
 	return []string{*msg.msg.Topic}
+}
+
+func (msg *pubSubMessage) Signature() []byte {
+	return msg.msg.Signature
 }

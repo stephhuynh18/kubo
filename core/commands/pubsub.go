@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -39,10 +40,13 @@ EXPERIMENTAL FEATURE
 }
 
 type pubsubMessage struct {
+	ID string `json:"id,omitempty"`
+	ReceivedFrom string `json:"receviedFrom,omitempty"` 
 	From     string   `json:"from,omitempty"`
 	Data     string   `json:"data,omitempty"`
 	Seqno    string   `json:"seqno,omitempty"`
 	TopicIDs []string `json:"topicIDs,omitempty"`
+	Signature string `json:"signature,omitempty"`
 }
 
 var PubsubSubCmd = &cmds.Command{
@@ -109,9 +113,12 @@ TOPIC AND DATA ENCODING
 			// turn bytes into strings
 			encoder, _ := mbase.EncoderByName("base64url")
 			psm := pubsubMessage{
-				Data:  encoder.Encode(msg.Data()),
+				ID: msg.ID(),
+				ReceivedFrom: msg.ReceivedFrom().Pretty(),
+				Data:  string(msg.Data()),
 				From:  msg.From().Pretty(),
-				Seqno: encoder.Encode(msg.Seq()),
+				Seqno: hex.EncodeToString(msg.Seq()),
+				Signature: string(msg.Signature()),
 			}
 			for _, topic := range msg.Topics() {
 				psm.TopicIDs = append(psm.TopicIDs, encoder.Encode([]byte(topic)))

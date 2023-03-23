@@ -249,3 +249,5 @@ require (
 )
 
 go 1.18
+
+replace github.com/ipfs/interface-go-ipfs-core => /Users/stephaniehuynh/Github/interface-go-ipfs-core
