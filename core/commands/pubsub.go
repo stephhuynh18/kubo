@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"sort"
+	"time"
 
 	cmdenv "github.com/ipfs/kubo/core/commands/cmdenv"
 	mbase "github.com/multiformats/go-multibase"
@@ -40,6 +41,7 @@ EXPERIMENTAL FEATURE
 }
 
 type pubsubMessage struct {
+	Time time.Time `json:"time,omitempty"`
 	ID string `json:"id,omitempty"`
 	ReceivedFrom string `json:"receviedFrom,omitempty"` 
 	From     string   `json:"from,omitempty"`
@@ -113,12 +115,13 @@ TOPIC AND DATA ENCODING
 			// turn bytes into strings
 			encoder, _ := mbase.EncoderByName("base64url")
 			psm := pubsubMessage{
-				ID: msg.ID(),
+				Time: time.Now().UTC(),
+				ID: encoder.Encode([]byte(msg.ID())),
 				ReceivedFrom: msg.ReceivedFrom().Pretty(),
 				Data:  string(msg.Data()),
 				From:  msg.From().Pretty(),
 				Seqno: hex.EncodeToString(msg.Seq()),
-				Signature: string(msg.Signature()),
+				Signature: encoder.Encode([]byte(msg.Signature())),
 			}
 			for _, topic := range msg.Topics() {
 				psm.TopicIDs = append(psm.TopicIDs, encoder.Encode([]byte(topic)))
